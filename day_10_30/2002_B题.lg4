@@ -1,0 +1,83 @@
+model:
+sets:
+!nodes 表示节点集合;
+nodes /S1,S2,S3,S4,S5,S6,S7,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14,A15,
+B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,B12,B13,B14,B15,B16,B17/;
+!c1(i,j)表示节点 i 到 j 铁路运输的最小运价（万元）,c2(i,j)表示节点 i 到 j 公路运输的费
+用邻接矩阵，c(i,j)表示节点 i 到 j 的最小运价，path 标志最短路径上走过的顶点;
+link(nodes, nodes): w, c1,c2,c,path1,path;
+supply/S1..S7/:S,P,f;
+need/A1..A15/:b,y,z; !y 表示每一点往左铺的量，z 表示往右铺的量;
+linkf(supply, need):cf,X;
+endsets
+data:
+S=800 800 1000 2000 2000 2000 3000;
+P=160 155 155 160 155 150 160;
+b=104,301,750,606,194,205,201,680,480,300,220,210,420,500,0;
+path1=0; path=0; w=0; c2=0;
+! 以下是格式化输出计算的中间结果和最终结果; 
+@text(MiddleCost.txt)=@writefor(supply(i): @writefor(need(j): @format(cf(i,j),' 6.1f' )),
+@newline(1));
+@text(Train_path.txt)=@writefor(nodes(i):@writefor(nodes(j):@format(path1(i,j),'5.0f')),
+@newline(1));
+@text(Final_path.txt)=@writefor(nodes(i):@writefor(nodes(j):@format(path(i,j),'5.0f')),
+@newline(1));
+@text(FinalResult.txt)=@writefor(supply(i):@writefor(need(j):@format(x(i,j),'5.0f')),
+@newline(1) );
+@text(FinalResult.txt)=@write(@newline(1));
+@text(FinalResult.txt)=@writefor(need:@format(y,'5.0f') );
+@text(FinalResult.txt)=@write(@newline(2));
+@text(FinalResult.txt)=@writefor(need:@format(z,'5.0f') );
+enddata
+calc:
+!输入铁路距离邻接矩阵的上三角元素;
+w(1,29)=20;w(1,30)=202;w(2,30)=1200;w(3,31)=690;w(4,34)=690;w(5,33)=462;
+w(6,38)=70;w(7,39)=30;w(23,25)=450;w(24,25)=80;w(25,27)=1150;w(26,28)=306;
+w(27,30)=1100;w(28,29)=195;w(30,31)=720;w(31,32)=520;w(32,34)=170;w(33,34)=88;
+w(34,36)=160;w(35,36)=70;w(36,37)=320;w(37,38)=160;w(38,39)=290;
+@for(link(i,j): w(i,j) = w(i, j)+w(j,i) ); !输入铁路距离邻接矩阵的下三角元素;
+@for(link(i,j)|i#ne#j: w(i,j)=@if(w(i,j) #eq# 0, 20000,w(i,j))); ! 无铁路连接，元素为充分
+大的数;
+!以下就是最短路计算公式（Floyd-Warshall 算法）;
+@for(nodes(k):@for(nodes(i):@for(nodes(j):tm=@smin(w(i,j),w(i,k)+w(k,j));
+path1(i,j)=@if(w(i,j)#gt# tm,k,path1(i,j));w(i,j)=tm)));
+!以下就是按最短路 w 查找相应运费 C1 的计算公式;
+@for(link|w#eq#0: C1=0);
+@for(link|w#gt#0 #and# w#le#300: C1=20);
+@for(link|w#gt#300 #and# w#le#350: C1=23);
+@for(link|w#gt#350 #and# w#le#400: C1=26);
+@for(link|w#gt#400 #and# w#le#450: C1=29);
+@for(link|w#gt#450 #and# w#le#500: C1=32);
+@for(link|w#gt#500 #and# w#le#600: C1=37);
+@for(link|w#gt#600 #and# w#le#700: C1=44);
+@for(link|w#gt#700 #and# w#le#800: C1=50);
+@for(link|w#gt#800 #and# w#le#900: C1=55);
+@for(link|w#gt#900 #and# w#le#1000: C1=60);
+@for(link|w#gt#1000: C1= 60+5*@floor(w/100-10)+@if(@mod(w,100)#eq#0,0,5) );
+!输入公路距离邻接矩阵的上三角元素;
+c2(1,14)=31;c2(6,21)=110;c2(7,22)=20;c2(8,9)=104;c2(9,10)=301;c2(9,23)=3;
+c2(10,11)=750;c2(10,24)=2;c2(11,12)=606;c2(11,27)=600;c2(12,13)=194;c2(12,26)=10;
+c2(13,14)=205;c2(13,28)=5;c2(14,15)=201;c2(14,29)=10;c2(15,16)=680;c2(15,30)=12;
+c2(16,17)=480;c2(16,31)=42;c2(17,18)=300;c2(17,32)=70;c2(18,19)=220;c2(18,33)=10;
+c2(19,20)=210;c2(19,35)=10;c2(20,21)=420;c2(20,37)=62;c2(21,22)=500;c2(21,38)=30;
+c2(22,39)=20;
+@for(link(i,j): c2(i,j) = c2(i,j)+c2(j,i)); !输入公路距离邻接矩阵的下三角元素;
+@for(link(i,j):c2(i,j)=0.1*c2(i,j)); ! 距离转化成费用;
+@for(link(i,j)|i#ne#j: c2(i,j) =@if(c2(i,j)#eq#0,10000,c2(i,j) )); !无公路连接，元素为充分
+大的数; 
+@for(link: C= @if(C1#le#C2,C1,C2)); ! C1 和 C2 矩阵对应元素取最小;
+@for(nodes(k):@for(nodes(i):@for(nodes(j):tm=@smin(C(i,j),C(i,k)+C(k,j));
+path(i,j)=@if(C(i,j)#gt# tm,k,path(i,j));C(i,j)=tm)));
+@for(link(i,j)|i #le# 7 #and# j#ge#8 #and# j#le# 22:cf(i,j-7)=c(i,j)); !提取下面二次规划模
+型需要的 7×15 矩阵;
+endcalc
+[obj]min=@sum(linkf(i,j):(cf(i,j)+p(i))*x(i,j))+0.05*@sum(need(j):y(j)^2+y(j)+z(j)^2+z(j));
+! 约束;
+@for(supply(i):[con1]@sum(need(j):x(i,j))<= S(i)*f(i));
+@for(supply(i):[con2]@sum(need(j):x(i,j)) >= 500*f(i));
+@for(need(j):[con3] @sum(supply(i):x(i,j))=y(j)+z(j));
+@for(need(j)|j#NE#15:[con4] z(j)+y(j+1)=b(j));
+y(1)=0; z(15)=0;
+@for(supply: @bin(f));
+@for(need: @gin(y));
+end 
