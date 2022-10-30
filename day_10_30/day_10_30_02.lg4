@@ -1,0 +1,9 @@
+model:
+data:
+enddata
+min = 3*x1+x2+3*x3+3*x4+x5+x6+3*x7;
+4*x1+3*x2+2*x3+x4+x5>=50;
+x2+2*x4+x5+3*x6>=20;
+x3+x5+2*x7>=15;
+@gin(x1);@gin(x2);@gin(x3);@gin(x4);@gin(x5);@gin(x6);@gin(x7);
+end
