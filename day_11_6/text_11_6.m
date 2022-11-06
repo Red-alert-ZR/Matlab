@@ -117,8 +117,8 @@ end
 
 
 xlswrite('D:\matlab\MATLAB\day_11_6\1.xlsx',dist,'sheet1','b3:p9');
-xlswrite('D:\matlab\MATLAB\day_11_6\1.xlsx',w,'sheet2','b4:AN42');
-xlswrite('D:\matlab\MATLAB\day_11_6\1.xlsx',c1,'sheet2','b54:AN92');
-xlswrite('D:\matlab\MATLAB\day_11_6\1.xlsx',c3,'sheet3','b4:AN42');
-xlswrite('D:\matlab\MATLAB\day_11_6\1.xlsx',c2,'sheet3','b54:AN92');
-xlswrite('D:\matlab\MATLAB\day_11_6\1.xlsx',c,'sheet4','b4:AN42');
+%xlswrite('D:\matlab\MATLAB\day_11_6\1.xlsx',w,'sheet2','b4:AN42');
+%xlswrite('D:\matlab\MATLAB\day_11_6\1.xlsx',c1,'sheet2','b54:AN92');
+%xlswrite('D:\matlab\MATLAB\day_11_6\1.xlsx',c3,'sheet3','b4:AN42');
+%xlswrite('D:\matlab\MATLAB\day_11_6\1.xlsx',c2,'sheet3','b54:AN92');
+%xlswrite('D:\matlab\MATLAB\day_11_6\1.xlsx',c,'sheet4','b4:AN42');
