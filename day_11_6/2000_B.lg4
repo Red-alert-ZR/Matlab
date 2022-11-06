@@ -1,0 +1,41 @@
+model:
+sets:
+
+factory/1..7/:p,s,t;
+highway/1..15/:R,L,b;
+cooperation(factory,highway):dist,x;
+
+endsets
+data:
+p=160 155 155 160 155 150 160;
+s=800 800 1000 2000 2000 2000 3000;
+b=104 301 750 606 194 205 201 680 480 300 220 210 420 500 0;
+
+!从文件之中导入数据;
+dist=@ole('D:\matlab\MATLAB\day_11_6\1.xlsx','data');
+
+
+enddata
+
+min = @sum(cooperation(i,j):(dist(i,j)+p(i))*x(i,j))+ 0.05*@sum(highway(j):L(j)^2+L(j)+R(j)^2+R(j));
+!产量限制条件;
+
+!订单必须大于500;
+@for(factory(i):@sum(highway(j):x(i,j))>=500*t(i));
+
+!订单不能超过产量;
+@for(factory(i):@sum(highway(j):x(i,j))<=s(i)*t(i));
+
+!钢管不能有剩余;
+@for(highway(j):@sum(factory(i):x(i,j))=R(j)+L(j));
+
+R(15)=0;
+L(1)=0;
+
+!钢管必须铺完;
+@for(highway(j)|j #ne#15 :R(j)+L(j+1)=b(j));
+
+@for(factory:@bin(t));
+@for(highway:@gin(L));
+
+end
